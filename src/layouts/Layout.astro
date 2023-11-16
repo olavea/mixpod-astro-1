@@ -4,7 +4,13 @@ interface Props {
 }
 
 const { title } = Astro.props;
+
 const PUBLIC_FATHOM_EMBED = import.meta.env.PUBLIC_FATHOM_EMBED;
+
+
+if (typeof document !== 'undefined') {
+   let wrong = document.getElementById('analytics').innerHTML = PUBLIC_FATHOM_EMBED
+}
 ---
 
 <!doctype html>
@@ -15,7 +21,7 @@ const PUBLIC_FATHOM_EMBED = import.meta.env.PUBLIC_FATHOM_EMBED;
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<script src="https://cdn.usefathom.com/script.js" data-included-domains="mixpod.app" data-spa="auto" data-site=PUBLIC_FATHOM_EMBED defer></script>
+		<script src="https://cdn.usefathom.com/script.js" id="analytics" data-site=PUBLIC_FATHOM_EMBED data-included-domains="mixpod.app" data-spa="auto" defer></script>
 		<title>{title}</title>
 	</head>
 	<body>
