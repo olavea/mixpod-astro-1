@@ -49,6 +49,42 @@ import Card from "../components/Card.astro";
         body="You can check out our video on youtube"
       />
     </ul>
+    <!-- Begin Outseta Email Signup Form -->
+    <form
+      action="https://queen-raae-streams.outseta.com/email/lists/y9qo1zmA/subscribe"
+      method="post"
+    >
+      <div class="form-group">
+        <label for="Email">Email</label>
+        <input id="Email" name="Email" type="email" required />
+      </div>
+
+      <div class="form-group">
+        <label for="FirstName">First Name</label>
+        <input id="FirstName" name="FirstName" type="text" />
+      </div>
+
+      <div class="form-group">
+        <label for="LastName">Last Name</label>
+        <input id="LastName" name="LastName" type="text" />
+      </div>
+
+      <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+      <div style="position: absolute; left: -5000px;" aria-hidden="true">
+        <input
+          type="text"
+          name="o_RFZuyatxph7BYb4gc2dD0fjE_FC1uRAop"
+          tabindex="-1"
+          value=""
+        />
+      </div>
+
+      <div class="clear">
+        <input type="submit" value="Subscribe" data-wait="Please wait..." />
+      </div>
+    </form>
+    <script src="https://cdn.outseta.com/emailsignup.min.js" defer></script>
+    <!--End Outseta Email Signup Form -->
     <iframe
       width="1333"
       height="892"
