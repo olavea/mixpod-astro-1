@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Card from "../components/Card.astro";
+import SignUp from "../components/SignUp.astro";
 ---
 
 <Layout title="Welcome to Astro.">
@@ -37,54 +38,43 @@ import Card from "../components/Card.astro";
     <p class="instructions">
       Make a playlist of podcast episodes for your friend. (Coming later 🐊)
     </p>
+
     <ul role="list" class="link-card-grid">
+      <Card title="💌 Stay updated on the journey from idea to launch">
+        <SignUp />
+      </Card>
       <Card
         href="https://www.tldraw.com/v/3Fm1saCUgL4FnXHC7QUH_?viewport=0%2C0%2C1470%2C834&page=page%3Apage"
         title="🗺️ Our Treasure Map Charted in tldraw"
         body="An overview of topics we'll work on to build MixPod in public."
       />
-      <Card
-        href="https://www.youtube.com/live/ZWhzBS0PJQg?si=xaeDndHeQtRdkPo4"
-        title="🔴 🏴‍☠️ Charting Our Course: Drawing the #MixPod Treasure Map 🗺️"
-        body="You can check out our video on youtube"
-      />
     </ul>
-    <!-- Begin Outseta Email Signup Form -->
-    <form action={import.meta.env.PUBLIC_OUTSETA_EMAIL_LIST_URL} method="post">
-      <div class="form-group">
-        <label for="Email">Email</label>
-        <input id="Email" name="Email" type="email" required />
-      </div>
 
-      <div class="form-group">
-        <label for="FirstName">First Name</label>
-        <input id="FirstName" name="FirstName" type="text" />
-      </div>
+    <h2>Voyages</h2>
 
-      <div class="form-group">
-        <label for="LastName">Last Name</label>
-        <input id="LastName" name="LastName" type="text" />
-      </div>
+    <ul role="list" class="link-card-grid">
+      <iframe
+        width="560"
+        height="315"
+        src="https://www.youtube.com/embed/S_fwn8S7UHU?si=6-TsmdKTFyo57uG7"
+        title="YouTube video player"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen></iframe>
 
-      <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-      <div style="position: absolute; left: -5000px;" aria-hidden="true">
-        <input
-          type="text"
-          name="o_RFZuyatxph7BYb4gc2dD0fjE_FC1uRAop"
-          tabindex="-1"
-          value=""
-        />
-      </div>
+      <iframe
+        width="560"
+        height="315"
+        src="https://www.youtube.com/embed/SQ8URCwbW5g?si=qnRLQdsqUaw_Fwoz"
+        title="YouTube video player"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen></iframe>
+    </ul>
 
-      <div class="clear">
-        <input type="submit" value="Subscribe" data-wait="Please wait..." />
-      </div>
-    </form>
-    <script src="https://cdn.outseta.com/emailsignup.min.js" defer></script>
-    <!--End Outseta Email Signup Form -->
+    <h2>Our Treasure Map</h2>
+
     <iframe
-      width="1333"
-      height="892"
       src="https://www.tldraw.com/v/3Fm1saCUgL4FnXHC7QUH_?viewport=1288,455,3676,1857&page=page%3Apage"
     ></iframe>
   </main>
@@ -151,7 +141,6 @@ import Card from "../components/Card.astro";
     padding: 0;
   }
   iframe {
-    margin-top: 2em;
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 9;

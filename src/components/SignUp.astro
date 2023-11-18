@@ -1,0 +1,39 @@
+<!-- Begin Outseta Email Signup Form -->
+<form action={import.meta.env.PUBLIC_OUTSETA_EMAIL_LIST_URL} method="post">
+  <label for="Email">Your best email</label>
+  <input id="Email" name="Email" type="email" required />
+
+  <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+  <div style="position: absolute; left: -5000px;" aria-hidden="true">
+    <input
+      type="text"
+      name="o_RFZuyatxph7BYb4gc2dD0fjE_FC1uRAop"
+      tabindex="-1"
+      value=""
+    />
+  </div>
+
+  <input type="submit" value="Signup" data-wait="Please wait..." />
+</form>
+<!--End Outseta Email Signup Form -->
+
+<script src="https://cdn.outseta.com/emailsignup.min.js" defer></script>
+
+<style>
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2em 0.5em;
+  }
+
+  label {
+    width: 100%;
+    font-size: 0.5em;
+    opacity: 0.5;
+  }
+
+  input {
+    font-size: 0.8em;
+    padding: 0.3em;
+  }
+</style>
