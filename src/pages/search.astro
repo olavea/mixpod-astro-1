@@ -1,0 +1,62 @@
+---
+import { Client } from "podcast-api";
+
+const query = Astro.url.searchParams.get("q");
+
+// If apiKey is null, then we will connect to a mock server
+// that returns fake data for testing purposes.
+const client = Client({ apiKey: import.meta.env.LISTEN_NOTES_API_KEY });
+const response = await client.search({
+  q: query,
+  sort_by_date: 0,
+  type: "episode",
+  offset: 0,
+  len_min: 10,
+  len_max: 30,
+  // genre_ids: "68,82",
+  //   published_before: 1580172454000,
+  //   published_after: 0,
+  only_in: "title,description",
+  // language: "English",
+  safe_mode: 0,
+  unique_podcasts: 0,
+  page_size: 10,
+});
+
+const results = response.data.results;
+---
+
+<main>
+  <form>
+    <fieldset>
+      <legend>Search for a podcast episode</legend>
+      <input type="search" name="q" value={query} />
+      <button type="submit">Search</button>
+    </fieldset>
+  </form>
+
+  <section>
+    {
+      results.map((result) => {
+        return (
+          <article>
+            <h2 set:html={result.title_highlighted} />
+            <p set:html={result.description_highlighted} />
+            <audio controls src={result.audio} />
+          </article>
+        );
+      })
+    }
+  </section>
+</main>
+
+<style>
+  main {
+    max-width: 64ch;
+    margin: 5em auto;
+  }
+  main :global(.ln-search-highlight) {
+    background-color: yellow;
+    display: inline-block;
+  }
+</style>
