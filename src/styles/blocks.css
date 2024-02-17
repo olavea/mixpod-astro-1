@@ -47,7 +47,8 @@ section {
 }
 
 form {
-  input {
+  input,
+  textarea {
     padding: 1em 1em;
     border: 0.2em solid gold;
     font-weight: bold;
