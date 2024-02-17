@@ -1,0 +1,80 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Client } from "podcast-api";
+
+const query = Astro.url.searchParams.get("q");
+const playlistId = Astro.url.searchParams.get("playlistId");
+const episodeId = Astro.url.searchParams.get("episodeId");
+
+// If apiKey is null, then we will connect to a mock server
+// that returns fake data for testing purposes.
+const client = Client({ apiKey: import.meta.env.LISTEN_NOTES_API_KEY });
+
+let results = [];
+
+if (query) {
+  const response = await client.search({
+    q: query,
+    type: "episode",
+    len_min: 10,
+    len_max: 30,
+    only_in: "title, description",
+    page_size: 10,
+  });
+
+  results = response.data.results;
+}
+---
+
+<Layout title="Search">
+  <main>
+    <form>
+      <fieldset>
+        <legend>Search for a podcast episode</legend>
+        <input type="search" name="q" value={query} />
+        <button type="submit">Search</button>
+      </fieldset>
+    </form>
+
+    <section>
+      {
+        results.map((result) => {
+          return (
+            <article>
+              <h2 set:html={result.title_highlighted} />
+              <p set:html={result.description_highlighted} />
+              <audio controls src={result.audio} />
+              <form>
+                <input type="hidden" name="q" value={query} />
+                <input type="hidden" name="playlistId" value={playlistId} />
+                <input type="hidden" name="episodeId" value={result.id} />
+                <button type="submit">Add to Playlist</button>
+              </form>
+            </article>
+          );
+        })
+      }
+    </section>
+  </main>
+</Layout>
+
+<style>
+  article {
+    font-size: var(--step--1);
+    position: relative;
+
+    form {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
+  article :global(.ln-search-highlight) {
+    background-color: yellow;
+    display: inline-block;
+  }
+
+  audio {
+    margin: var(--space-m) 0;
+  }
+</style>

@@ -20,7 +20,7 @@ const playlists = await db.query.playlists.findMany({ limit: 6 });
         {
           playlists.map((playlist) => (
             <li>
-              <a href={`/p/${playlist.id}`}>{playlist.name}</a>
+              <a href={`/${playlist.id}`}>{playlist.name}</a>
             </li>
           ))
         }
