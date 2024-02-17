@@ -3,36 +3,40 @@
 ---
 
 <form method="post">
-  <p>
-    <label for="author"> Name </label><br />
-    <input
-      type="text"
-      id="author"
-      name="author"
-      placeholder="Your name"
-      required
-    />
-  </p>
-  <p>
-    <label for="content"> Comment </label><br />
-    <textarea
-      id="content"
-      name="content"
-      rows="4"
-      placeholder="Your comment"
-      required></textarea>
-  </p>
+  <label for="author"> Name </label>
+  <input
+    type="text"
+    id="author"
+    name="author"
+    placeholder="Your name"
+    required
+  />
+
+  <label for="content"> Comment </label>
+  <textarea
+    id="content"
+    name="content"
+    rows="4"
+    placeholder="Your comment"
+    required></textarea>
 
   <button type="submit"> Submit </button>
 </form>
 
 <style>
   form {
-    p {
-      margin: var(--space-s) 0;
+    > * {
+      display: block;
+      width: var(--readable-width);
+    }
+    > label {
+      margin-top: var(--space-s);
+      margin-bottom: var(--space-3xs);
     }
 
     button {
+      width: auto;
+      margin-top: var(--space-s);
       font-size: var(--step-0);
     }
   }
