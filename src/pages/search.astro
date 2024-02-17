@@ -1,19 +1,20 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { Client } from "podcast-api";
+import { episodes } from "../models/schema";
+import { db } from "../utils/db";
 
 const query = Astro.url.searchParams.get("q");
 const playlistId = Astro.url.searchParams.get("playlistId");
-const episodeId = Astro.url.searchParams.get("episodeId");
 
 // If apiKey is null, then we will connect to a mock server
 // that returns fake data for testing purposes.
-const client = Client({ apiKey: import.meta.env.LISTEN_NOTES_API_KEY });
+const podcastApi = Client({ apiKey: import.meta.env.LISTEN_NOTES_API_KEY });
 
 let results = [];
 
 if (query) {
-  const response = await client.search({
+  const response = await podcastApi.search({
     q: query,
     type: "episode",
     len_min: 10,
@@ -23,6 +24,34 @@ if (query) {
   });
 
   results = response.data.results;
+}
+
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  const episodeId = formData.get("episodeId");
+
+  if (episodeId && playlistId) {
+    const { data: fetchedData } = await podcastApi.fetchEpisodeById({
+      id: episodeId,
+    });
+
+    const episodeData = {
+      title: fetchedData.title as string,
+      description: fetchedData.description as string,
+      audio: fetchedData.audio as string,
+    };
+
+    const upsertedEpisode = await db
+      .insert(episodes)
+      .values({ id: fetchedData.id as string, ...episodeData })
+      .onConflictDoUpdate({ target: episodes.id, set: episodeData });
+
+    console.log({ upsertedEpisode });
+
+    // TODO: Upsert a rown in a join table that connects the episode to the playlist
+  } else {
+    // TODO Error handling
+  }
 }
 ---
 
@@ -44,9 +73,7 @@ if (query) {
               <h2 set:html={result.title_highlighted} />
               <p set:html={result.description_highlighted} />
               <audio controls src={result.audio} />
-              <form>
-                <input type="hidden" name="q" value={query} />
-                <input type="hidden" name="playlistId" value={playlistId} />
+              <form method="POST">
                 <input type="hidden" name="episodeId" value={result.id} />
                 <button type="submit">Add to Playlist</button>
               </form>

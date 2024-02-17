@@ -12,3 +12,10 @@ export const playlists = sqliteTable("playlists", {
   description: text("description"),
   createdBy: text("createdBy"),
 });
+
+export const episodes = sqliteTable("episodes", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  audio: text("audio").notNull(),
+});
