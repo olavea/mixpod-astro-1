@@ -5,3 +5,10 @@ export const comments = sqliteTable("comments", {
   author: text("author").notNull(),
   content: text("content").notNull(),
 });
+
+export const playlists = sqliteTable("playlists", {
+  id: integer("id", { mode: "number" }).primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  createdBy: text("createdBy"),
+});
