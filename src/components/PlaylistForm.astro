@@ -1,0 +1,51 @@
+---
+
+---
+
+<form method="post">
+  <label for="name"> Name of playlist </label>
+  <input
+    type="text"
+    id="name"
+    name="name"
+    required
+    placeholder="Add a name for your playlist"
+  />
+
+  <label for="description"> Description </label>
+  <textarea
+    id="description"
+    name="description"
+    rows="4"
+    placeholder="Add a description for your playlist"></textarea>
+
+  <label for="created-by"> Created by </label>
+  <input
+    type="text"
+    id="created-by"
+    name="created-by"
+    placeholder="Your name or alias"
+  />
+
+  <button type="submit"> Save </button>
+</form>
+
+<style>
+  form {
+    > * {
+      display: block;
+      width: var(--readable-width);
+    }
+
+    > label {
+      margin-top: var(--space-s);
+      margin-bottom: var(--space-3xs);
+    }
+
+    button {
+      width: auto;
+      margin-top: var(--space-s);
+      font-size: var(--step-0);
+    }
+  }
+</style>

@@ -1,5 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { db } from "../utils/db";
+
+const playlists = await db.query.playlists.findMany({ limit: 6 });
 ---
 
 <Layout title="MixPod" nav="full">
@@ -11,6 +14,18 @@ import Layout from "../layouts/Layout.astro";
         <a href="/new">Create a MixPod</a>
       </menu>
     </header>
+    <section>
+      <h2>Featured MixPods</h2>
+      <ul role="list">
+        {
+          playlists.map((playlist) => (
+            <li>
+              <a href={`/p/${playlist.id}`}>{playlist.name}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
   </main>
 </Layout>
 
