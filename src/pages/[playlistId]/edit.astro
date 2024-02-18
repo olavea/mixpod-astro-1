@@ -1,0 +1,76 @@
+---
+import { eq } from "drizzle-orm";
+import Layout from "../../layouts/Layout.astro";
+import { playlists } from "../../models/schema";
+import type { Playlist } from "../../models/types";
+import { db } from "../../utils/db";
+import PlaylistForm from "../../components/PlaylistForm.astro";
+
+const { playlistId: playlistIdParam = "" } = Astro.params;
+const playlistId = parseInt(playlistIdParam);
+const name = Astro.url.searchParams.get("name");
+
+let playlist: Without<Playlist, "id"> | null = null;
+
+if (Astro.request.method === "GET") {
+  if (playlistId) {
+    // Find the playlist by ID
+    playlist = await db.query.playlists.findFirst({
+      where: eq(playlists.id, playlistId),
+    });
+  } else if (name) {
+    playlist = { name: name };
+  }
+}
+
+if (Astro.request.method === "POST") {
+  const data = await Astro.request.formData();
+
+  const playlistData = {
+    name: data.get("name") as string,
+    description: data.get("description") as string,
+    createdBy: data.get("created-by") as string,
+  };
+
+  const response = await db
+    .insert(playlists)
+    .values({ id: playlistId, ...playlistData })
+    .onConflictDoUpdate({ target: playlists.id, set: playlistData });
+
+  const updatedPlaylistId = response.lastInsertRowid;
+  return Astro.redirect(`/${updatedPlaylistId}`);
+}
+
+if (!playlist) return Astro.redirect("/404");
+
+const backLink = playlistId ? `/${playlistId}/` : `/new/?name=${playlist.name}`;
+---
+
+<Layout title={playlist?.name} nav="none">
+  <main>
+    <header>
+      <h1>
+        Edit MixPod Details
+        <menu><a href={backLink} title="Close editor">❌</a></menu>
+      </h1>
+    </header>
+    <section>
+      <PlaylistForm playlist={playlist} />
+    </section>
+  </main>
+</Layout>
+
+<style>
+  header {
+    position: relative;
+  }
+
+  section {
+    font-size: var(--step--1);
+  }
+
+  menu {
+    display: inline-block;
+    font-size: 0.2em;
+  }
+</style>

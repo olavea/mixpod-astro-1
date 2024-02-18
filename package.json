@@ -24,6 +24,7 @@
     "drizzle-orm": "^0.29.3",
     "prettier": "^3.0.3",
     "prettier-plugin-astro": "^0.13.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "unique-names-generator": "^4.7.1"
   }
 }

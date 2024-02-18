@@ -1,12 +1,9 @@
 nav,
 menu {
   display: flex;
-  gap: var(--space-s);
-}
+  gap: 0.5em;
 
-menu,
-nav {
-  a {
+  > * {
     text-decoration: none;
     font-weight: bold;
     background-color: floralwhite;
@@ -15,11 +12,12 @@ nav {
     border: solid 0.15em purple;
     display: inline-block;
     transition: all 0.3s ease-in-out;
-  }
 
-  a:hover {
-    background-color: hotpink;
-    color: floralwhite;
+    &:hover {
+      background-color: hotpink;
+      color: floralwhite;
+      border-color: purple;
+    }
   }
 }
 
@@ -36,7 +34,7 @@ header {
     font-size: var(--step-2);
   }
 
-  menu {
+  > menu {
     margin: var(--space-m) 0;
     font-size: var(--step-0);
   }
@@ -54,17 +52,12 @@ form {
     font-weight: bold;
   }
 
-  input[type="submit"],
-  button {
-    text-decoration: none;
-    background-color: floralwhite;
-    color: hotpink;
-    border-color: purple;
-  }
-
-  input[type="submit"]:hover,
-  button {
-    background-color: hotpink;
-    color: floralwhite;
+  menu {
+    *:first-child {
+      margin-left: auto;
+    }
+    *:not(:last-child) {
+      border-color: transparent;
+    }
   }
 }

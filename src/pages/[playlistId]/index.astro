@@ -1,0 +1,89 @@
+---
+import { eq } from "drizzle-orm";
+import Layout from "../../layouts/Layout.astro";
+import { playlists } from "../../models/schema";
+import type { Playlist } from "../../models/types";
+import { db } from "../../utils/db";
+import type { Config } from "unique-names-generator";
+import {
+  uniqueNamesGenerator,
+  adjectives,
+  colors,
+  animals,
+} from "unique-names-generator";
+
+const { playlistId: playlistIdParam = "" } = Astro.params;
+const playlistId = parseInt(playlistIdParam);
+const name = Astro.url.searchParams.get("name");
+
+let playlist: Without<Playlist, "id"> | null = null;
+
+if (Astro.request.method === "GET") {
+  if (playlistId) {
+    // Find the playlist by ID
+    playlist = await db.query.playlists.findFirst({
+      where: eq(playlists.id, playlistId),
+    });
+  } else if (name) {
+    // Dummy playlist with name form query param
+    playlist = { name: name };
+  } else {
+    // Generate a dummy playlist
+    const customConfig: Config = {
+      dictionaries: [adjectives, colors, animals],
+      separator: " ",
+      length: 3,
+    };
+    const randomName: string = uniqueNamesGenerator(customConfig);
+    playlist = { name: `My new ${randomName} MixPod` };
+  }
+}
+
+if (!playlist) return Astro.redirect("/404");
+
+const editLink = playlistId
+  ? `/${playlistId}/edit/`
+  : `/new/edit/?name=${playlist.name}`;
+---
+
+<Layout title={playlist?.name}>
+  <main>
+    <header>
+      <h1>
+        {playlist?.name}
+        <menu>
+          <a href={editLink} title="Edit MixPod details"> 📝 </a>
+        </menu>
+      </h1>
+      <mark>Public MixPod</mark>
+
+      <p>{playlist?.description}</p>
+      <p>{playlist?.createdBy}</p>
+    </header>
+  </main>
+
+  <style>
+    header {
+      position: relative;
+
+      h1 {
+        width: fit-content;
+      }
+
+      mark {
+        font-size: var(--step--1);
+        display: block;
+        width: fit-content;
+        position: absolute;
+        top: -0.8em;
+        z-index: -1;
+        padding: 0.3em;
+      }
+
+      menu {
+        display: inline-block;
+        font-size: 0.2em;
+      }
+    }
+  </style>
+</Layout>

@@ -3,7 +3,7 @@ import "../styles/styles.css";
 
 interface Props {
   title: string;
-  nav?: "minimal" | "full" | "none";
+  nav?: "none" | "minimal" | "full";
 }
 
 const { title, nav = "minimal" } = Astro.props;
@@ -47,8 +47,8 @@ if (nav === "full") {
       }
     </nav>
   </body>
-  <slot />
 </html>
+<slot />
 
 <style is:global>
   * {
@@ -75,7 +75,7 @@ if (nav === "full") {
 
   h1,
   h2 {
-    margin-top: 1.75em;
+    margin-top: 1em;
     margin-bottom: 0.75em;
   }
 </style>
