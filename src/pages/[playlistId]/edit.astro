@@ -10,7 +10,7 @@ const { playlistId: playlistIdParam = "" } = Astro.params;
 const playlistId = parseInt(playlistIdParam);
 const name = Astro.url.searchParams.get("name");
 
-let playlist: Without<Playlist, "id"> | null = null;
+let playlist: Playlist | undefined;
 
 if (Astro.request.method === "GET") {
   if (playlistId) {
@@ -38,7 +38,9 @@ if (Astro.request.method === "POST") {
     .onConflictDoUpdate({ target: playlists.id, set: playlistData });
 
   const updatedPlaylistId = response.lastInsertRowid;
-  return Astro.redirect(`/${updatedPlaylistId}`);
+  if (updatedPlaylistId !== playlistId) {
+    return Astro.redirect(`/${updatedPlaylistId}`);
+  }
 }
 
 if (!playlist) return Astro.redirect("/404");

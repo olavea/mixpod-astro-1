@@ -16,7 +16,7 @@ const { playlistId: playlistIdParam = "" } = Astro.params;
 const playlistId = parseInt(playlistIdParam);
 const name = Astro.url.searchParams.get("name");
 
-let playlist: Without<Playlist, "id"> | null = null;
+let playlist: Playlist | undefined;
 
 if (Astro.request.method === "GET") {
   if (playlistId) {

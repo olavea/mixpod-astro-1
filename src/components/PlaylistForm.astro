@@ -2,7 +2,7 @@
 import type { Playlist } from "../models/types";
 
 interface Props {
-  playlist?: Without<Playlist, "id">;
+  playlist?: Playlist;
 }
 
 const { playlist } = Astro.props;
