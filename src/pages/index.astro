@@ -15,8 +15,9 @@ const allPlaylists = await db
     <header>
       <h1>MixPod</h1>
       <p>Curate podcast episodes into new shareable podcast feeds!</p>
+      <form method="post" action="/new" id="new"></form>
       <menu>
-        <a href="/new">Create a MixPod</a>
+        <button form="new">Create a MixPod</button>
       </menu>
     </header>
     <section>
@@ -24,14 +25,14 @@ const allPlaylists = await db
       <ul role="list">
         {
           allPlaylists.map((playlist) => (
-            <>
+            <li>
               <a href={`/${playlist.id}`}>{playlist.name}</a>
               {playlist.createdBy && (
                 <>
                   by <small>{playlist.createdBy}</small>
                 </>
               )}
-            </>
+            </li>
           ))
         }
       </ul>

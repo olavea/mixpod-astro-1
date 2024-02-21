@@ -2,48 +2,16 @@
 import { eq } from "drizzle-orm";
 import Layout from "../../layouts/Layout.astro";
 import { playlists } from "../../models/schema";
-import type { Playlist } from "../../models/types";
 import { db } from "../../utils/db";
-import type { Config } from "unique-names-generator";
-import {
-  uniqueNamesGenerator,
-  adjectives,
-  colors,
-  animals,
-} from "unique-names-generator";
 
 const { playlistId: playlistIdParam = "" } = Astro.params;
 const playlistId = parseInt(playlistIdParam);
-const name = Astro.url.searchParams.get("name");
 
-let playlist: Playlist | undefined;
-
-if (Astro.request.method === "GET") {
-  if (playlistId) {
-    // Find the playlist by ID
-    playlist = await db.query.playlists.findFirst({
-      where: eq(playlists.id, playlistId),
-    });
-  } else if (name) {
-    // Dummy playlist with name form query param
-    playlist = { name: name };
-  } else {
-    // Generate a dummy playlist
-    const customConfig: Config = {
-      dictionaries: [adjectives, colors, animals],
-      separator: " ",
-      length: 3,
-    };
-    const randomName: string = uniqueNamesGenerator(customConfig);
-    playlist = { name: `My new ${randomName} MixPod` };
-  }
-}
+let playlist = await db.query.playlists.findFirst({
+  where: eq(playlists.id, playlistId),
+});
 
 if (!playlist) return Astro.redirect("/404");
-
-const editLink = playlistId
-  ? `/${playlistId}/edit/`
-  : `/new/edit/?name=${playlist.name}`;
 ---
 
 <Layout title={playlist?.name}>
@@ -52,7 +20,7 @@ const editLink = playlistId
       <h1>
         {playlist?.name}
         <menu>
-          <a href={editLink} title="Edit MixPod details"> 📝 </a>
+          <a href={`/${playlistId}/edit/`} title="Edit MixPod details"> 📝 </a>
         </menu>
       </h1>
       <mark>Public MixPod</mark>
