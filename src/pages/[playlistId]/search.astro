@@ -1,11 +1,13 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import Layout from "../../layouts/Layout.astro";
 import { Client } from "podcast-api";
-import { episodes } from "../models/schema";
-import { db } from "../utils/db";
+import { episodes } from "../../models/schema";
+import { db } from "../../utils/db";
+
+const { playlistId: playlistIdParam = "" } = Astro.params;
+const playlistId = parseInt(playlistIdParam);
 
 const query = Astro.url.searchParams.get("q");
-const playlistId = Astro.url.searchParams.get("playlistId");
 
 // If apiKey is null, then we will connect to a mock server
 // that returns fake data for testing purposes.

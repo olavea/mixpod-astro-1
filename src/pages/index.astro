@@ -1,26 +1,37 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { db } from "../utils/db";
+import { playlists } from "../models/schema";
+import { desc } from "drizzle-orm";
 
-const playlists = await db.query.playlists.findMany({ limit: 6 });
+const allPlaylists = await db
+  .select()
+  .from(playlists)
+  .orderBy(desc(playlists.id));
 ---
 
-<Layout title="MixPod">
+<Layout title="MixPod" nav="full">
   <main>
     <header>
       <h1>MixPod</h1>
       <p>Curate podcast episodes into new shareable podcast feeds!</p>
+      <form method="post" action="/new" id="new"></form>
       <menu>
-        <a href="/new">Create a MixPod</a>
+        <button form="new">Create a MixPod</button>
       </menu>
     </header>
     <section>
       <h2>Featured MixPods</h2>
       <ul role="list">
         {
-          playlists.map((playlist) => (
+          allPlaylists.map((playlist) => (
             <li>
               <a href={`/${playlist.id}`}>{playlist.name}</a>
+              {playlist.createdBy && (
+                <>
+                  by <small>{playlist.createdBy}</small>
+                </>
+              )}
             </li>
           ))
         }

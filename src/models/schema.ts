@@ -10,7 +10,7 @@ export const playlists = sqliteTable("playlists", {
   id: integer("id", { mode: "number" }).primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  createdBy: text("createdBy"),
+  createdBy: text("created_by"),
 });
 
 export const episodes = sqliteTable("episodes", {

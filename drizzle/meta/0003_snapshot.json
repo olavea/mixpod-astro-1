@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "78d18629-e113-4a97-b1f9-adc76987b6e7",
-  "prevId": "a17008cd-56c0-4dcf-a4d2-468cc392042b",
+  "id": "f67ac264-d695-4a3c-ab87-1a60a3e85a5c",
+  "prevId": "2466a8d3-01aa-49ac-9088-3cecc79b6438",
   "tables": {
     "comments": {
       "name": "comments",
@@ -23,6 +23,43 @@
         },
         "content": {
           "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "episodes": {
+      "name": "episodes",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "audio": {
+          "name": "audio",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -64,22 +101,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
         }
       },
       "indexes": {},
@@ -92,8 +113,6 @@
   "_meta": {
     "schemas": {},
     "tables": {},
-    "columns": {
-      "\"playlists\".\"createdBy\"": "\"playlists\".\"created_by\""
-    }
+    "columns": {}
   }
 }

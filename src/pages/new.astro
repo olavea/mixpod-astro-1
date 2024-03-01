@@ -1,33 +1,33 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import PlaylistForm from "../components/PlaylistForm.astro";
-import { db } from "../utils/db";
 import { playlists } from "../models/schema";
+import { db } from "../utils/db";
+import {
+  uniqueNamesGenerator,
+  adjectives,
+  colors,
+  animals,
+} from "unique-names-generator";
+import type { Config } from "unique-names-generator";
 
 if (Astro.request.method === "POST") {
-  const data = await Astro.request.formData();
+  console.log("POST request received");
+  const customConfig: Config = {
+    dictionaries: [adjectives, colors, animals],
+    separator: " ",
+    length: 3,
+  };
+  const randomName: string = uniqueNamesGenerator(customConfig);
+  const playlistData = { name: `My new ${randomName} MixPod` };
 
-  const name = data.get("name");
-  const description = data.get("description");
-  const createdBy = data.get("created-by");
+  const response = await db.insert(playlists).values(playlistData);
+  const playlistId = response.lastInsertRowid;
 
-  const playlist = await db.insert(playlists).values({
-    name: name as string,
-    description: description as string,
-    createdBy: createdBy as string,
-  });
-
-  console.log(`New playlist created with ID: ${playlist.lastInsertRowid}`);
-
-  return Astro.redirect(`/${playlist.lastInsertRowid}`);
+  if (playlistId) {
+    return Astro.redirect(`/${playlistId}`);
+  }
 }
+
+return Astro.redirect(`/`);
 ---
 
-<Layout title="New Playlist">
-  <main>
-    <header>
-      <h1>New Playlist</h1>
-    </header>
-    <PlaylistForm />
-  </main>
-</Layout>
+NOOP

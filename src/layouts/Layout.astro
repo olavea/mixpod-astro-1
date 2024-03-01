@@ -3,15 +3,21 @@ import "../styles/styles.css";
 
 interface Props {
   title: string;
+  nav?: "none" | "minimal" | "full";
 }
 
-const { title } = Astro.props;
+const { title, nav = "minimal" } = Astro.props;
 const pathname = new URL(Astro.request.url).pathname;
 
-const nav = [
-  { path: "/", label: "👈 MixPod" },
-  { path: "/about", label: "ℹ️ About" },
-];
+const navItems = [];
+
+if (nav === "minimal" || nav === "full") {
+  navItems.push({ path: "/", label: "👈 MixPod" });
+}
+
+if (nav === "full") {
+  navItems.push({ path: "/about", label: "ℹ️ About" });
+}
 ---
 
 <!doctype html>
@@ -34,15 +40,15 @@ const nav = [
   <body>
     <nav>
       {
-        nav.map((item) => {
+        navItems.map((item) => {
           if (item.path === pathname) return null;
           return <a href={item.path}>{item.label}</a>;
         })
       }
     </nav>
   </body>
-  <slot />
 </html>
+<slot />
 
 <style is:global>
   * {
@@ -60,14 +66,7 @@ const nav = [
   main {
     max-inline-size: var(--default-width);
     margin: 0 auto;
-  }
-
-  nav {
-    position: fixed;
-    bottom: var(--space-s);
-    left: var(--space-s);
-    display: flex;
-    gap: var(--space-3xs);
+    padding-bottom: var(--space-2xl);
   }
 
   main > * {
@@ -76,7 +75,7 @@ const nav = [
 
   h1,
   h2 {
-    margin-top: 1.75em;
+    margin-top: 1em;
     margin-bottom: 0.75em;
   }
 </style>
@@ -94,5 +93,17 @@ const nav = [
     background-repeat: no-repeat, no-repeat, repeat-y;
     background-size: 100vw auto;
     min-height: 100vh;
+  }
+
+  body {
+    padding: var(--space-s);
+  }
+
+  nav {
+    position: fixed;
+    bottom: var(--space-s);
+    left: var(--space-s);
+    display: flex;
+    gap: var(--space-3xs);
   }
 </style>

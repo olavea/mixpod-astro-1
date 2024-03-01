@@ -54,6 +54,11 @@ a:hover {
   color: hotpink;
 }
 
+mark {
+  background-color: gold;
+  border-color: floralwhite;
+}
+
 h1 {
   font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
   font-size: var(--step-5);

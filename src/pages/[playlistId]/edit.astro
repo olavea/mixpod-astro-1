@@ -1,0 +1,66 @@
+---
+import { eq } from "drizzle-orm";
+import Layout from "../../layouts/Layout.astro";
+import { playlists } from "../../models/schema";
+import type { Playlist } from "../../models/types";
+import { db } from "../../utils/db";
+import PlaylistForm from "../../components/PlaylistForm.astro";
+
+const { playlistId: playlistIdParam = "" } = Astro.params;
+const playlistId = parseInt(playlistIdParam);
+
+let playlist: Playlist | undefined;
+
+if (playlistId) {
+  // Find the playlist by ID
+  playlist = await db.query.playlists.findFirst({
+    where: eq(playlists.id, playlistId),
+  });
+}
+
+if (!playlist) return Astro.redirect("/404");
+
+if (Astro.request.method === "POST") {
+  const data = await Astro.request.formData();
+
+  await db
+    .update(playlists)
+    .set({
+      name: data.get("name") as string,
+      description: data.get("description") as string,
+      createdBy: data.get("created-by") as string,
+    })
+    .where(eq(playlists.id, playlistId));
+
+  return Astro.redirect(`/${playlistId}`);
+}
+---
+
+<Layout title={playlist?.name} nav="none">
+  <main>
+    <header>
+      <h1>
+        Edit MixPod Details
+        <menu><a href={`/${playlistId}/`} title="Close editor">❌</a></menu>
+      </h1>
+    </header>
+    <section>
+      <PlaylistForm playlist={playlist} />
+    </section>
+  </main>
+</Layout>
+
+<style>
+  header {
+    position: relative;
+  }
+
+  section {
+    font-size: var(--step--1);
+  }
+
+  menu {
+    display: inline-block;
+    font-size: 0.2em;
+  }
+</style>
