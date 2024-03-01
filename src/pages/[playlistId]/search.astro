@@ -3,9 +3,26 @@ import Layout from "../../layouts/Layout.astro";
 import { Client } from "podcast-api";
 import { episodes } from "../../models/schema";
 import { db } from "../../utils/db";
+import { playlists } from "../../models/schema";
+import { eq } from "drizzle-orm";
+
+interface EpisodeSearchResult {
+  id: string;
+  title: string;
+  description: string;
+  audio: string;
+  title_highlighted: string;
+  description_highlighted: string;
+}
 
 const { playlistId: playlistIdParam = "" } = Astro.params;
 const playlistId = parseInt(playlistIdParam);
+
+let playlist = await db.query.playlists.findFirst({
+  where: eq(playlists.id, playlistId),
+});
+
+if (!playlist) return Astro.redirect("/404");
 
 const query = Astro.url.searchParams.get("q");
 
@@ -13,7 +30,7 @@ const query = Astro.url.searchParams.get("q");
 // that returns fake data for testing purposes.
 const podcastApi = Client({ apiKey: import.meta.env.LISTEN_NOTES_API_KEY });
 
-let results = [];
+let results: EpisodeSearchResult[] = [];
 
 if (query) {
   const response = await podcastApi.search({

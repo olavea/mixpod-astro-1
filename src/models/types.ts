@@ -1,5 +1,5 @@
-import type { InferSelectModel } from "drizzle-orm";
-import { comments, playlists } from "./schema.ts";
+import { comments, episodes, playlists } from "./schema.ts";
 
-export type Comment = InferSelectModel<typeof comments>;
+export type Comment = typeof comments.$inferInsert;
 export type Playlist = typeof playlists.$inferInsert;
+export type Episode = typeof episodes.$inferInsert;
