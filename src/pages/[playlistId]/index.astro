@@ -4,11 +4,19 @@ import Layout from "../../layouts/Layout.astro";
 import { playlists } from "../../models/schema";
 import { db } from "../../utils/db";
 
+const query = Astro.url.searchParams.get("q");
 const { playlistId: playlistIdParam = "" } = Astro.params;
 const playlistId = parseInt(playlistIdParam);
 
-let playlist = await db.query.playlists.findFirst({
+const playlist = await db.query.playlists.findFirst({
   where: eq(playlists.id, playlistId),
+  with: {
+    playlistToEpisodes: {
+      with: {
+        episode: true,
+      },
+    },
+  },
 });
 
 if (!playlist) return Astro.redirect("/404");
@@ -29,11 +37,21 @@ if (!playlist) return Astro.redirect("/404");
       <p>{playlist?.createdBy}</p>
     </header>
     <section>
-      <menu>
-        <a href=`/${playlistId}/search?q=javascript&playlistId=${playlistId}`
-          >Add Episodes</a
-        >
-      </menu>
+      <form method="GET" action={`/${playlistId}/search`}>
+        <fieldset>
+          <legend>Search for episodes to add</legend>
+          <input type="search" name="q" value={query} />
+          <menu><button type="submit">Search</button></menu>
+        </fieldset>
+      </form>
+      {
+        playlist.playlistToEpisodes.map(({ episode }) => (
+          <article>
+            <h2 set:html={episode.title} />
+            <audio controls src={episode.audio} />
+          </article>
+        ))
+      }
     </section>
   </main>
 </Layout>
@@ -59,6 +77,30 @@ if (!playlist) return Astro.redirect("/404");
     menu {
       display: inline-block;
       font-size: 0.2em;
+    }
+  }
+
+  fieldset {
+    width: 100%;
+    margin-bottom: var(--space-md);
+    display: flex;
+    border: transparent;
+    padding: 0;
+    font-size: var(--step--1);
+
+    legend {
+      margin-bottom: 0.5em;
+    }
+
+    input {
+      flex: 1;
+      margin-right: var(--space-2xs);
+    }
+  }
+
+  article {
+    h2 {
+      margin-bottom: var(--space-xs);
     }
   }
 </style>

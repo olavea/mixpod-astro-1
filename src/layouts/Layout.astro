@@ -3,7 +3,7 @@ import "../styles/styles.css";
 
 interface Props {
   title: string;
-  nav?: "none" | "minimal" | "full";
+  nav?: "none" | "minimal" | "full" | { path: string; label: string };
 }
 
 const { title, nav = "minimal" } = Astro.props;
@@ -17,6 +17,10 @@ if (nav === "minimal" || nav === "full") {
 
 if (nav === "full") {
   navItems.push({ path: "/about", label: "ℹ️ About" });
+}
+
+if (typeof nav === "object") {
+  navItems.push(nav);
 }
 ---
 

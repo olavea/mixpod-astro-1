@@ -1,30 +1,37 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { Client } from "podcast-api";
-import { episodes } from "../../models/schema";
+import { episodes, playlists, episodesPlaylists } from "../../models/schema";
 import { db } from "../../utils/db";
-import { playlists } from "../../models/schema";
 import { eq } from "drizzle-orm";
 
 interface EpisodeSearchResult {
   id: string;
-  title: string;
-  description: string;
+  image: string;
   audio: string;
   title_highlighted: string;
   description_highlighted: string;
+  podcast: {
+    title_highlighted: string;
+  };
 }
 
+const query = Astro.url.searchParams.get("q");
 const { playlistId: playlistIdParam = "" } = Astro.params;
 const playlistId = parseInt(playlistIdParam);
 
-let playlist = await db.query.playlists.findFirst({
+const playlist = await db.query.playlists.findFirst({
   where: eq(playlists.id, playlistId),
+  with: {
+    playlistToEpisodes: true,
+  },
 });
 
-if (!playlist) return Astro.redirect("/404");
+const episodeIds = playlist?.playlistToEpisodes.map(
+  ({ episodeId }) => episodeId,
+);
 
-const query = Astro.url.searchParams.get("q");
+if (!playlist) return Astro.redirect("/404");
 
 // If apiKey is null, then we will connect to a mock server
 // that returns fake data for testing purposes.
@@ -36,9 +43,6 @@ if (query) {
   const response = await podcastApi.search({
     q: query,
     type: "episode",
-    len_min: 10,
-    len_max: 30,
-    only_in: "title, description",
     page_size: 10,
   });
 
@@ -60,29 +64,35 @@ if (Astro.request.method === "POST") {
       audio: fetchedData.audio as string,
     };
 
-    const upsertedEpisode = await db
-      .insert(episodes)
-      .values({ id: fetchedData.id as string, ...episodeData })
-      .onConflictDoUpdate({ target: episodes.id, set: episodeData });
+    await db.transaction(async (tx) => {
+      await tx
+        .insert(episodes)
+        .values({ id: fetchedData.id as string, ...episodeData })
+        .onConflictDoUpdate({ target: episodes.id, set: episodeData });
 
-    console.log({ upsertedEpisode });
+      await tx
+        .insert(episodesPlaylists)
+        .values({
+          playlistId: playlistId,
+          episodeId: fetchedData.id as string,
+        })
+        .onConflictDoNothing();
+    });
 
-    // TODO: Upsert a rown in a join table that connects the episode to the playlist
-  } else {
-    // TODO Error handling
+    return Astro.redirect(`/${playlistId}/?q=${query}`);
   }
 }
 ---
 
-<Layout title="Search">
+<Layout
+  title="Search"
+  nav={{ label: `👈 Your MixPod`, path: `/${playlistId}/` }}
+>
   <main>
-    <form>
-      <fieldset>
-        <legend>Search for a podcast episode</legend>
-        <input type="search" name="q" value={query} />
-        <button type="submit">Search</button>
-      </fieldset>
-    </form>
+    <header>
+      <h1>{query}</h1>
+      <mark>Search results for</mark>
+    </header>
 
     <section>
       {
@@ -90,12 +100,26 @@ if (Astro.request.method === "POST") {
           return (
             <article>
               <h2 set:html={result.title_highlighted} />
-              <p set:html={result.description_highlighted} />
-              <audio controls src={result.audio} />
+
+              <p>{result.podcast.title_highlighted}</p>
+
+              <img src={result.image} alt={result.title_highlighted} />
+
               <form method="POST">
                 <input type="hidden" name="episodeId" value={result.id} />
-                <button type="submit">Add to Playlist</button>
+                <button
+                  type="submit"
+                  disabled={episodeIds?.includes(result.id)}
+                >
+                  {episodeIds?.includes(result.id)
+                    ? "Alredy added"
+                    : "Add to your MixPod"}
+                </button>
               </form>
+
+              <p set:html={result.description_highlighted} />
+
+              <audio controls src={result.audio} />
             </article>
           );
         })
@@ -105,22 +129,36 @@ if (Astro.request.method === "POST") {
 </Layout>
 
 <style>
+  header {
+    position: relative;
+
+    h1 {
+      width: fit-content;
+    }
+
+    mark {
+      font-size: var(--step--1);
+      display: block;
+      width: fit-content;
+      position: absolute;
+      top: -0.8em;
+      z-index: -1;
+      padding: 0.3em;
+    }
+  }
+
   article {
     font-size: var(--step--1);
     position: relative;
 
-    form {
-      position: absolute;
-      top: 0;
-      right: 0;
+    p,
+    img {
+      margin: var(--space-xs) 0;
     }
   }
+
   article :global(.ln-search-highlight) {
     background-color: yellow;
     display: inline-block;
-  }
-
-  audio {
-    margin: var(--space-m) 0;
   }
 </style>
