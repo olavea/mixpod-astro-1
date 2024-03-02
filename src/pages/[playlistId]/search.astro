@@ -1,0 +1,164 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { Client } from "podcast-api";
+import { episodes, playlists, episodesPlaylists } from "../../models/schema";
+import { db } from "../../utils/db";
+import { eq } from "drizzle-orm";
+
+interface EpisodeSearchResult {
+  id: string;
+  image: string;
+  audio: string;
+  title_highlighted: string;
+  description_highlighted: string;
+  podcast: {
+    title_highlighted: string;
+  };
+}
+
+const query = Astro.url.searchParams.get("q");
+const { playlistId: playlistIdParam = "" } = Astro.params;
+const playlistId = parseInt(playlistIdParam);
+
+const playlist = await db.query.playlists.findFirst({
+  where: eq(playlists.id, playlistId),
+  with: {
+    playlistToEpisodes: true,
+  },
+});
+
+const episodeIds = playlist?.playlistToEpisodes.map(
+  ({ episodeId }) => episodeId,
+);
+
+if (!playlist) return Astro.redirect("/404");
+
+// If apiKey is null, then we will connect to a mock server
+// that returns fake data for testing purposes.
+const podcastApi = Client({ apiKey: import.meta.env.LISTEN_NOTES_API_KEY });
+
+let results: EpisodeSearchResult[] = [];
+
+if (query) {
+  const response = await podcastApi.search({
+    q: query,
+    type: "episode",
+    page_size: 10,
+  });
+
+  results = response.data.results;
+}
+
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  const episodeId = formData.get("episodeId");
+
+  if (episodeId && playlistId) {
+    const { data: fetchedData } = await podcastApi.fetchEpisodeById({
+      id: episodeId,
+    });
+
+    const episodeData = {
+      title: fetchedData.title as string,
+      description: fetchedData.description as string,
+      audio: fetchedData.audio as string,
+    };
+
+    await db.transaction(async (tx) => {
+      await tx
+        .insert(episodes)
+        .values({ id: fetchedData.id as string, ...episodeData })
+        .onConflictDoUpdate({ target: episodes.id, set: episodeData });
+
+      await tx
+        .insert(episodesPlaylists)
+        .values({
+          playlistId: playlistId,
+          episodeId: fetchedData.id as string,
+        })
+        .onConflictDoNothing();
+    });
+
+    return Astro.redirect(`/${playlistId}/?q=${query}`);
+  }
+}
+---
+
+<Layout
+  title="Search"
+  nav={{ label: `👈 Your MixPod`, path: `/${playlistId}/` }}
+>
+  <main>
+    <header>
+      <h1>{query}</h1>
+      <mark>Search results for</mark>
+    </header>
+
+    <section>
+      {
+        results.map((result) => {
+          return (
+            <article>
+              <h2 set:html={result.title_highlighted} />
+
+              <p>{result.podcast.title_highlighted}</p>
+
+              <img src={result.image} alt={result.title_highlighted} />
+
+              <form method="POST">
+                <input type="hidden" name="episodeId" value={result.id} />
+                <button
+                  type="submit"
+                  disabled={episodeIds?.includes(result.id)}
+                >
+                  {episodeIds?.includes(result.id)
+                    ? "Alredy added"
+                    : "Add to your MixPod"}
+                </button>
+              </form>
+
+              <p set:html={result.description_highlighted} />
+
+              <audio controls src={result.audio} />
+            </article>
+          );
+        })
+      }
+    </section>
+  </main>
+</Layout>
+
+<style>
+  header {
+    position: relative;
+
+    h1 {
+      width: fit-content;
+    }
+
+    mark {
+      font-size: var(--step--1);
+      display: block;
+      width: fit-content;
+      position: absolute;
+      top: -0.8em;
+      z-index: -1;
+      padding: 0.3em;
+    }
+  }
+
+  article {
+    font-size: var(--step--1);
+    position: relative;
+
+    p,
+    img {
+      margin: var(--space-xs) 0;
+    }
+  }
+
+  article :global(.ln-search-highlight) {
+    background-color: yellow;
+    display: inline-block;
+  }
+</style>

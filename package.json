@@ -22,6 +22,7 @@
     "dotenv": "^16.4.4",
     "drizzle-kit": "^0.20.14",
     "drizzle-orm": "^0.29.3",
+    "podcast-api": "^2.0.4",
     "prettier": "^3.0.3",
     "prettier-plugin-astro": "^0.13.0",
     "typescript": "^5.3.3",

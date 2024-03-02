@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "f67ac264-d695-4a3c-ab87-1a60a3e85a5c",
-  "prevId": "2466a8d3-01aa-49ac-9088-3cecc79b6438",
+  "id": "eb1fc991-243e-489e-89ea-6e0ff05f480a",
+  "prevId": "f67ac264-d695-4a3c-ab87-1a60a3e85a5c",
   "tables": {
     "comments": {
       "name": "comments",
@@ -106,6 +106,64 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "playlists_episodes": {
+      "name": "playlists_episodes",
+      "columns": {
+        "playlist_id": {
+          "name": "playlist_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "episode_id": {
+          "name": "episode_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "playlists_episodes_playlist_id_playlists_id_fk": {
+          "name": "playlists_episodes_playlist_id_playlists_id_fk",
+          "tableFrom": "playlists_episodes",
+          "tableTo": "playlists",
+          "columnsFrom": [
+            "playlist_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "playlists_episodes_episode_id_episodes_id_fk": {
+          "name": "playlists_episodes_episode_id_episodes_id_fk",
+          "tableFrom": "playlists_episodes",
+          "tableTo": "episodes",
+          "columnsFrom": [
+            "episode_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "playlists_episodes_playlist_id_episode_id_pk": {
+          "columns": [
+            "episode_id",
+            "playlist_id"
+          ],
+          "name": "playlists_episodes_playlist_id_episode_id_pk"
+        }
+      },
       "uniqueConstraints": {}
     }
   },
