@@ -10,7 +10,6 @@ import {
 import type { Config } from "unique-names-generator";
 
 if (Astro.request.method === "POST") {
-  console.log("POST request received");
   const customConfig: Config = {
     dictionaries: [adjectives, colors, animals],
     separator: " ",
@@ -19,11 +18,15 @@ if (Astro.request.method === "POST") {
   const randomName: string = uniqueNamesGenerator(customConfig);
   const playlistData = { name: `My new ${randomName} MixPod` };
 
-  const response = await db.insert(playlists).values(playlistData);
-  const playlistId = response.lastInsertRowid;
+  const response = await db
+    .insert(playlists)
+    .values(playlistData)
+    .returning({ id: playlists.id, key: playlists.key });
 
-  if (playlistId) {
-    return Astro.redirect(`/${playlistId}`);
+  const playlist = response[0];
+
+  if (playlist.id) {
+    return Astro.redirect(`/${playlist.id}/?key=${playlist.key}`);
   }
 }
 

@@ -5,6 +5,18 @@ import {
   primaryKey,
 } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
+import {
+  uniqueNamesGenerator,
+  adjectives,
+  colors,
+  animals,
+} from "unique-names-generator";
+
+const keyConfig: Config = {
+  dictionaries: [colors, animals],
+  separator: "-",
+  length: 2,
+};
 
 export const comments = sqliteTable("comments", {
   id: integer("id").primaryKey(),
@@ -17,6 +29,7 @@ export const playlists = sqliteTable("playlists", {
   name: text("name").notNull(),
   description: text("description"),
   createdBy: text("created_by"),
+  key: text("key").default(uniqueNamesGenerator(keyConfig)),
 });
 
 export const playlistsRelations = relations(playlists, ({ many }) => ({

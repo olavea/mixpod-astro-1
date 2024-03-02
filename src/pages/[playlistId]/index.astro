@@ -4,6 +4,7 @@ import Layout from "../../layouts/Layout.astro";
 import { playlists } from "../../models/schema";
 import { db } from "../../utils/db";
 
+const providedKey = Astro.url.searchParams.get("key");
 const query = Astro.url.searchParams.get("q");
 const { playlistId: playlistIdParam = "" } = Astro.params;
 const playlistId = parseInt(playlistIdParam);
@@ -19,6 +20,8 @@ const playlist = await db.query.playlists.findFirst({
   },
 });
 
+const state: "edit" | "listen" = providedKey ? "edit" : "listen";
+
 if (!playlist) return Astro.redirect("/404");
 ---
 
@@ -27,9 +30,18 @@ if (!playlist) return Astro.redirect("/404");
     <header>
       <h1>
         {playlist?.name}
-        <menu>
-          <a href={`/${playlistId}/edit/`} title="Edit MixPod details"> 📝 </a>
-        </menu>
+        {
+          state === "edit" && (
+            <menu>
+              <a
+                href={`/${playlistId}/edit/?key=${providedKey}`}
+                title="Edit MixPod details"
+              >
+                📝
+              </a>
+            </menu>
+          )
+        }
       </h1>
       <mark>Public MixPod</mark>
 
@@ -37,13 +49,20 @@ if (!playlist) return Astro.redirect("/404");
       <p>{playlist?.createdBy}</p>
     </header>
     <section>
-      <form method="GET" action={`/${playlistId}/search`}>
-        <fieldset>
-          <legend>Search for episodes to add</legend>
-          <input type="search" name="q" value={query} required />
-          <menu><button type="submit">Search</button></menu>
-        </fieldset>
-      </form>
+      {
+        state === "edit" && (
+          <form method="GET" action={`/${playlistId}/search/`}>
+            <fieldset>
+              <legend>Search for episodes to add</legend>
+              <input name="key" value={providedKey} hidden />
+              <input type="search" name="q" value={query} required />
+              <menu>
+                <button type="submit">Search</button>
+              </menu>
+            </fieldset>
+          </form>
+        )
+      }
       {
         playlist.playlistToEpisodes.map(({ episode }) => (
           <article>
