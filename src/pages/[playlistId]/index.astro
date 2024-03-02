@@ -40,7 +40,7 @@ if (!playlist) return Astro.redirect("/404");
       <form method="GET" action={`/${playlistId}/search`}>
         <fieldset>
           <legend>Search for episodes to add</legend>
-          <input type="search" name="q" value={query} />
+          <input type="search" name="q" value={query} required />
           <menu><button type="submit">Search</button></menu>
         </fieldset>
       </form>
