@@ -29,7 +29,7 @@ export const playlists = sqliteTable("playlists", {
   name: text("name").notNull(),
   description: text("description"),
   createdBy: text("created_by"),
-  key: text("key").default(uniqueNamesGenerator(keyConfig)),
+  key: text("key").default("secret_key"),
 });
 
 export const playlistsRelations = relations(playlists, ({ many }) => ({

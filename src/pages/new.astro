@@ -1,26 +1,38 @@
 ---
 import { playlists } from "../models/schema";
 import { db } from "../utils/db";
+import slugify from "@sindresorhus/slugify";
 import {
   uniqueNamesGenerator,
   adjectives,
   colors,
   animals,
+  starWars,
 } from "unique-names-generator";
 import type { Config } from "unique-names-generator";
 
 if (Astro.request.method === "POST") {
-  const customConfig: Config = {
+  const nameConfig: Config = {
     dictionaries: [adjectives, colors, animals],
     separator: " ",
     length: 3,
   };
-  const randomName: string = uniqueNamesGenerator(customConfig);
-  const playlistData = { name: `My new ${randomName} MixPod` };
+
+  const keyConfig: Config = {
+    dictionaries: [adjectives, colors, starWars],
+    separator: "-",
+    length: 3,
+  };
+
+  const randomName: string = uniqueNamesGenerator(nameConfig);
+  const randomKey: string = uniqueNamesGenerator(keyConfig);
 
   const response = await db
     .insert(playlists)
-    .values(playlistData)
+    .values({
+      name: `My new ${randomName} MixPod`,
+      key: slugify(randomKey),
+    })
     .returning({ id: playlists.id, key: playlists.key });
 
   const playlist = response[0];
