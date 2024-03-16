@@ -29,7 +29,7 @@ const playlist = await db.query.playlists.findFirst({
 });
 
 const episodeIds = playlist?.playlistToEpisodes.map(
-  ({ episodeId }) => episodeId,
+  ({ episodeId }) => episodeId
 );
 
 if (!playlist) return Astro.redirect("/404");
@@ -89,7 +89,10 @@ if (Astro.request.method === "POST") {
 
 <Layout
   title="Search"
-  nav={{ label: `👈 Your MixPod`, path: `/${playlistId}/` }}
+  nav={{
+    label: `👈 Your MixPod`,
+    path: `/${playlistId}/?q=${query}&key=${providedKey}`,
+  }}
 >
   <main>
     <header>
