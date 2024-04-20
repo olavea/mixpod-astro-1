@@ -4,6 +4,7 @@ import Layout from "../../layouts/Layout.astro";
 import { playlists } from "../../models/schema";
 import { db } from "../../utils/db";
 
+const providedKey = Astro.url.searchParams.get("key");
 const query = Astro.url.searchParams.get("q");
 const { playlistId: playlistIdParam = "" } = Astro.params;
 const playlistId = parseInt(playlistIdParam);
@@ -19,6 +20,11 @@ const playlist = await db.query.playlists.findFirst({
   },
 });
 
+const state: "edit" | "listen-only" = providedKey ? "edit" : "listen-only";
+
+const listenOnlyUrl = `${Astro.url.origin}/${playlistId}/`;
+const editUrl = `${listenOnlyUrl}?key=${providedKey}`;
+
 if (!playlist) return Astro.redirect("/404");
 ---
 
@@ -27,23 +33,61 @@ if (!playlist) return Astro.redirect("/404");
     <header>
       <h1>
         {playlist?.name}
-        <menu>
-          <a href={`/${playlistId}/edit/`} title="Edit MixPod details"> 📝 </a>
-        </menu>
+        {
+          state === "edit" && (
+            <menu>
+              <a
+                href={`/${playlistId}/edit/?key=${providedKey}`}
+                title="Edit MixPod details"
+              >
+                📝
+              </a>
+            </menu>
+          )
+        }
       </h1>
       <mark>Public MixPod</mark>
 
       <p>{playlist?.description}</p>
       <p>{playlist?.createdBy}</p>
     </header>
+    <aside>
+      <div>
+        <label for="share-widget">Share</label>
+      </div>
+
+      <input type="checkbox" id="share-widget" name="share" hidden />
+
+      <div>
+        <p>Copy/paste the link you wanna share with your friend:</p>
+        <dl>
+          <dt>Listen Only Link to gift a friend:</dt>
+          <dd><code>{listenOnlyUrl}</code></dd>
+
+          <dt>Collaboration URL to share with a friend:</dt>
+          <dd><code>{editUrl}</code></dd>
+        </dl>
+        <p>
+          or share the name {playlist?.name} and key {providedKey} to unclock collaboration
+          features with them.
+        </p>
+      </div>
+    </aside>
     <section>
-      <form method="GET" action={`/${playlistId}/search`}>
-        <fieldset>
-          <legend>Search for episodes to add</legend>
-          <input type="search" name="q" value={query} required />
-          <menu><button type="submit">Search</button></menu>
-        </fieldset>
-      </form>
+      {
+        state === "edit" && (
+          <form method="GET" action={`/${playlistId}/search/`}>
+            <fieldset>
+              <legend>Search for episodes to add</legend>
+              <input name="key" value={providedKey} hidden />
+              <input type="search" name="q" value={query} required />
+              <menu>
+                <button type="submit">Search</button>
+              </menu>
+            </fieldset>
+          </form>
+        )
+      }
       {
         playlist.playlistToEpisodes.map(({ episode }) => (
           <article>
@@ -101,6 +145,55 @@ if (!playlist) return Astro.redirect("/404");
   article {
     h2 {
       margin-bottom: var(--space-xs);
+    }
+  }
+
+  aside {
+    position: fixed;
+    top: 1em;
+    right: 1em;
+
+    margin: 0;
+
+    font-size: var(--step--1);
+    max-width: 40ch;
+
+    p {
+      margin: 0.5em 0;
+    }
+
+    div:first-of-type {
+      text-align: right;
+      margin-bottom: 1em;
+    }
+
+    div:not(:first-of-type) {
+      background: floralwhite;
+    }
+
+    input + div {
+      display: none;
+      padding: 1em;
+    }
+
+    input:checked + div {
+      display: block;
+    }
+
+    label {
+      font-weight: bold;
+      background-color: floralwhite;
+      color: hotpink;
+      padding: 0.5em 1em;
+      border: solid 0.15em purple;
+      display: inline-block;
+      transition: all 0.3s ease-in-out;
+
+      &:hover {
+        background-color: hotpink;
+        color: floralwhite;
+        border-color: purple;
+      }
     }
   }
 </style>

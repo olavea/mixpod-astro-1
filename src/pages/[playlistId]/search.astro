@@ -16,6 +16,7 @@ interface EpisodeSearchResult {
   };
 }
 
+const providedKey = Astro.url.searchParams.get("key");
 const query = Astro.url.searchParams.get("q");
 const { playlistId: playlistIdParam = "" } = Astro.params;
 const playlistId = parseInt(playlistIdParam);
@@ -28,11 +29,12 @@ const playlist = await db.query.playlists.findFirst({
 });
 
 const episodeIds = playlist?.playlistToEpisodes.map(
-  ({ episodeId }) => episodeId,
+  ({ episodeId }) => episodeId
 );
 
 if (!playlist) return Astro.redirect("/404");
 if (!query) return Astro.redirect(`/${playlistId}/`);
+if (playlist.key !== providedKey) return Astro.redirect(`/${playlistId}`);
 
 // If apiKey is null, then we will connect to a mock server
 // that returns fake data for testing purposes.
@@ -80,14 +82,17 @@ if (Astro.request.method === "POST") {
         .onConflictDoNothing();
     });
 
-    return Astro.redirect(`/${playlistId}/?q=${query}`);
+    return Astro.redirect(`/${playlistId}/?q=${query}&key=${providedKey}`);
   }
 }
 ---
 
 <Layout
   title="Search"
-  nav={{ label: `👈 Your MixPod`, path: `/${playlistId}/` }}
+  nav={{
+    label: `👈 Your MixPod`,
+    path: `/${playlistId}/?q=${query}&key=${providedKey}`,
+  }}
 >
   <main>
     <header>

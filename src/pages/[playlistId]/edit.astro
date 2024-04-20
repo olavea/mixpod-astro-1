@@ -6,6 +6,7 @@ import type { Playlist } from "../../models/types";
 import { db } from "../../utils/db";
 import PlaylistForm from "../../components/PlaylistForm.astro";
 
+const providedKey = Astro.url.searchParams.get("key");
 const { playlistId: playlistIdParam = "" } = Astro.params;
 const playlistId = parseInt(playlistIdParam);
 
@@ -19,6 +20,7 @@ if (playlistId) {
 }
 
 if (!playlist) return Astro.redirect("/404");
+if (playlist.key !== providedKey) return Astro.redirect(`/${playlistId}`);
 
 if (Astro.request.method === "POST") {
   const data = await Astro.request.formData();
@@ -32,7 +34,7 @@ if (Astro.request.method === "POST") {
     })
     .where(eq(playlists.id, playlistId));
 
-  return Astro.redirect(`/${playlistId}`);
+  return Astro.redirect(`/${playlistId}/?key=${providedKey}`);
 }
 ---
 
@@ -41,7 +43,11 @@ if (Astro.request.method === "POST") {
     <header>
       <h1>
         Edit MixPod Details
-        <menu><a href={`/${playlistId}/`} title="Close editor">❌</a></menu>
+        <menu
+          ><a href={`/${playlistId}/?key=${providedKey}`} title="Close editor"
+            >❌</a
+          ></menu
+        >
       </h1>
     </header>
     <section>

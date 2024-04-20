@@ -1,0 +1,1 @@
+ALTER TABLE playlists ADD `key` text DEFAULT 'salmon-manatee';

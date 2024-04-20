@@ -16,6 +16,7 @@
     "@astrojs/check": "^0.5.4",
     "@astrojs/netlify": "^5.1.2",
     "@astrojs/node": "^8.2.0",
+    "@sindresorhus/slugify": "^2.2.1",
     "@types/better-sqlite3": "^7.6.9",
     "astro": "^4.4.0",
     "better-sqlite3": "^9.4.1",
