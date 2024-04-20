@@ -1,6 +1,6 @@
 import { defineDb, defineTable, column } from "astro:db";
 
-const comments = defineTable({
+const Comment = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     author: column.text({ optional: true }),
@@ -9,5 +9,5 @@ const comments = defineTable({
 });
 
 export default defineDb({
-  tables: { comments },
+  tables: { Comment },
 });
