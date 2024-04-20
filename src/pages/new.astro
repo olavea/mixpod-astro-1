@@ -1,6 +1,6 @@
 ---
-import { playlists } from "../models/schema";
-import { db } from "../utils/db";
+import { db, Playlist } from "astro:db";
+
 import {
   uniqueNamesGenerator,
   adjectives,
@@ -19,7 +19,7 @@ if (Astro.request.method === "POST") {
   const randomName: string = uniqueNamesGenerator(customConfig);
   const playlistData = { name: `My new ${randomName} MixPod` };
 
-  const response = await db.insert(playlists).values(playlistData);
+  const response = await db.insert(Playlist).values(playlistData);
   const playlistId = response.lastInsertRowid;
 
   if (playlistId) {

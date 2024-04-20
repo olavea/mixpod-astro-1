@@ -1,22 +1,18 @@
 ---
-import { eq } from "drizzle-orm";
+import { db, Playlist, eq } from "astro:db";
+
 import Layout from "../../layouts/Layout.astro";
-import { playlists } from "../../models/schema";
-import type { Playlist } from "../../models/types";
-import { db } from "../../utils/db";
 import PlaylistForm from "../../components/PlaylistForm.astro";
 
 const { playlistId: playlistIdParam = "" } = Astro.params;
 const playlistId = parseInt(playlistIdParam);
 
-let playlist: Playlist | undefined;
+const playlists = await db
+  .select()
+  .from(Playlist)
+  .where(eq(Playlist.id, playlistId));
 
-if (playlistId) {
-  // Find the playlist by ID
-  playlist = await db.query.playlists.findFirst({
-    where: eq(playlists.id, playlistId),
-  });
-}
+const playlist = playlists[0];
 
 if (!playlist) return Astro.redirect("/404");
 
@@ -24,13 +20,13 @@ if (Astro.request.method === "POST") {
   const data = await Astro.request.formData();
 
   await db
-    .update(playlists)
+    .update(Playlist)
     .set({
       name: data.get("name") as string,
       description: data.get("description") as string,
       createdBy: data.get("created-by") as string,
     })
-    .where(eq(playlists.id, playlistId));
+    .where(eq(Playlist.id, playlistId));
 
   return Astro.redirect(`/${playlistId}`);
 }

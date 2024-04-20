@@ -1,9 +1,7 @@
 ---
+import { db, Playlist, Episode, PlaylistEpisode, eq } from "astro:db";
 import Layout from "../../layouts/Layout.astro";
 import { Client } from "podcast-api";
-import { episodes, playlists, episodesPlaylists } from "../../models/schema";
-import { db } from "../../utils/db";
-import { eq } from "drizzle-orm";
 
 interface EpisodeSearchResult {
   id: string;
@@ -20,19 +18,23 @@ const query = Astro.url.searchParams.get("q");
 const { playlistId: playlistIdParam = "" } = Astro.params;
 const playlistId = parseInt(playlistIdParam);
 
-const playlist = await db.query.playlists.findFirst({
-  where: eq(playlists.id, playlistId),
-  with: {
-    playlistToEpisodes: true,
-  },
-});
+const playlists = await db
+  .select()
+  .from(Playlist)
+  .where(eq(Playlist.id, playlistId));
 
-const episodeIds = playlist?.playlistToEpisodes.map(
-  ({ episodeId }) => episodeId,
-);
+const playlist = playlists[0];
 
 if (!playlist) return Astro.redirect("/404");
 if (!query) return Astro.redirect(`/${playlistId}/`);
+
+const playlistEpisodes = await db
+  .select({ episodeId: Episode.id })
+  .from(PlaylistEpisode)
+  .innerJoin(Episode, eq(Episode.id, PlaylistEpisode.episodeId))
+  .where(eq(PlaylistEpisode.playlistId, playlistId));
+
+const episodeIds = playlistEpisodes.map(({ episodeId }) => episodeId);
 
 // If apiKey is null, then we will connect to a mock server
 // that returns fake data for testing purposes.
@@ -65,20 +67,19 @@ if (Astro.request.method === "POST") {
       audio: fetchedData.audio as string,
     };
 
-    await db.transaction(async (tx) => {
-      await tx
-        .insert(episodes)
+    await db.batch([
+      db
+        .insert(Episode)
         .values({ id: fetchedData.id as string, ...episodeData })
-        .onConflictDoUpdate({ target: episodes.id, set: episodeData });
-
-      await tx
-        .insert(episodesPlaylists)
+        .onConflictDoUpdate({ target: Episode.id, set: episodeData }),
+      db
+        .insert(PlaylistEpisode)
         .values({
           playlistId: playlistId,
           episodeId: fetchedData.id as string,
         })
-        .onConflictDoNothing();
-    });
+        .onConflictDoNothing(),
+    ]);
 
     return Astro.redirect(`/${playlistId}/?q=${query}`);
   }

@@ -1,25 +1,28 @@
 ---
-import { eq } from "drizzle-orm";
+import { db, Playlist, Episode, PlaylistEpisode, eq } from "astro:db";
+
 import Layout from "../../layouts/Layout.astro";
-import { playlists } from "../../models/schema";
-import { db } from "../../utils/db";
 
 const query = Astro.url.searchParams.get("q");
 const { playlistId: playlistIdParam = "" } = Astro.params;
 const playlistId = parseInt(playlistIdParam);
 
-const playlist = await db.query.playlists.findFirst({
-  where: eq(playlists.id, playlistId),
-  with: {
-    playlistToEpisodes: {
-      with: {
-        episode: true,
-      },
-    },
-  },
-});
+const playlists = await db
+  .select()
+  .from(Playlist)
+  .where(eq(Playlist.id, playlistId));
+
+const playlist = playlists[0];
 
 if (!playlist) return Astro.redirect("/404");
+
+const playlistEpisodes = await db
+  .select({ episode: Episode })
+  .from(PlaylistEpisode)
+  .innerJoin(Episode, eq(Episode.id, PlaylistEpisode.episodeId))
+  .where(eq(PlaylistEpisode.playlistId, playlistId));
+
+console.log(playlistEpisodes);
 ---
 
 <Layout title={playlist?.name}>
@@ -45,7 +48,7 @@ if (!playlist) return Astro.redirect("/404");
         </fieldset>
       </form>
       {
-        playlist.playlistToEpisodes.map(({ episode }) => (
+        playlistEpisodes.map(({ episode }) => (
           <article>
             <h2 set:html={episode.title} />
             <audio controls src={episode.audio} />
