@@ -1,7 +1,6 @@
 ---
-import { type Comment } from "../models/types";
 interface Props {
-  comment: Comment;
+  comment: { author: string | null; content: string | null };
 }
 const { comment } = Astro.props;
 ---

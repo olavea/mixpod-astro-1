@@ -1,9 +1,9 @@
 ---
+import { db, comments } from "astro:db";
+
 import Layout from "../layouts/Layout.astro";
 import Comment from "../components/Comment.astro";
 import CommentForm from "../components/CommentForm.astro";
-import { db } from "../utils/db";
-import { comments } from "../models/schema";
 
 if (Astro.request.method === "POST") {
   const data = await Astro.request.formData();
@@ -15,14 +15,14 @@ if (Astro.request.method === "POST") {
   });
 }
 
-const cms = await db.query.comments.findMany();
+const allComments = await db.select().from(comments);
 ---
 
 <Layout title="Comments">
   <main>
     <h1>Comments</h1>
     <ul>
-      {cms.map((comment) => <Comment comment={comment} />)}
+      {allComments.map((comment) => <Comment comment={comment} />)}
     </ul>
     <CommentForm />
   </main>
