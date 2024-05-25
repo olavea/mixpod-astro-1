@@ -1,13 +1,9 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import { db } from "../utils/db";
-import { playlists } from "../models/schema";
-import { desc } from "drizzle-orm";
+import { db, Playlist, desc } from "astro:db";
 
-const allPlaylists = await db
-  .select()
-  .from(playlists)
-  .orderBy(desc(playlists.id));
+import Layout from "../layouts/Layout.astro";
+
+const playlists = await db.select().from(Playlist).orderBy(desc(Playlist.id));
 ---
 
 <Layout title="MixPod" nav="full">
@@ -24,7 +20,7 @@ const allPlaylists = await db
       <h2>Featured MixPods</h2>
       <ul role="list">
         {
-          allPlaylists.map((playlist) => (
+          playlists.map((playlist) => (
             <li>
               <a href={`/${playlist.id}`}>{playlist.name}</a>
               {playlist.createdBy && (
